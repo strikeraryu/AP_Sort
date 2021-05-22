@@ -3,7 +3,7 @@ using namespace std;
 
 
 template< typename T >
-vector<T> apSort2(vector<T> v, int n)       //arithmetic sorting
+vector<T> apSort4(vector<T> v, int n)       //arithmetic sorting
 {
     T ma=*max_element(v.begin(),v.end());
     T mi=*min_element(v.begin(),v.end());
@@ -11,23 +11,31 @@ vector<T> apSort2(vector<T> v, int n)       //arithmetic sorting
     int last_gap_r = n-1;
     int last_gap_l = 0;
     int col = 0;
+    int max_dis = 0;
+    long long int dis_avg = 0;
     vector<T> sor_vec(n,mi-1);
+    vector<int> cnts(n);
 
     float d = ((ma-mi)/float(n-1));
 
     for(int i=0 ; i<n ; i++)
     {
         int indx = round((v[i]-mi)/d);
+        cnts[indx]+=1;
+        if(indx+cnts[indx]-1<n)
+        indx += cnts[indx]-1;
 
         if(sor_vec[indx]!=(mi-1))
         {
             col++;
-            if(sor_vec[indx] < v[indx])
+            int dis = 0;
+            if(i%2)
             {
                 bool right=false;
                 int ele = v[i];
 
                 for(int j = indx; j < n; j++){
+                    dis+=1;
                     if(j>=last_gap_r){
                         break;
                     }
@@ -46,7 +54,9 @@ vector<T> apSort2(vector<T> v, int n)       //arithmetic sorting
                 if(!right) last_gap_r = indx;
 
                 for(int j = n-1;!right && j>=0;j--){
+                    dis+=1;
                     if(sor_vec[j]==mi-1){
+                        last_gap_r=j;
                         sor_vec[j] = ele;
                         break;
                     }
@@ -62,6 +72,7 @@ vector<T> apSort2(vector<T> v, int n)       //arithmetic sorting
                 int ele = v[i];
 
                 for(int j = indx; j >= 0; j--){
+                    dis+=1;
                     if(j<=last_gap_l){
                         break;
                     }
@@ -80,7 +91,9 @@ vector<T> apSort2(vector<T> v, int n)       //arithmetic sorting
                 if(!left)last_gap_l = indx;
 
                 for(int j = 0;!left && j<n;j++){
+                    dis+=1;
                     if(sor_vec[j]==mi-1){
+                        last_gap_l=j;
                         sor_vec[j] = ele;
                         break;
                     }
@@ -91,13 +104,17 @@ vector<T> apSort2(vector<T> v, int n)       //arithmetic sorting
                     }
                 }
             }
+            max_dis = max(max_dis, dis);
+            dis_avg += dis;
         }
             
         else
             sor_vec[indx]=v[i];
             
+        cnts[indx]++;
     }
     cout<<"col - "<<col<<endl;
+    cout<<"max - "<<*max_element(cnts.begin(), cnts.end())<<endl;
     return sor_vec;
     
 }

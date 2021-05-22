@@ -41,7 +41,7 @@ void _quickSort(vector<T> &v, int low, int high) {
 }
 
 template< typename T >
-vector<T> quickSort(vector<T> &v, int n)
+vector<T> quickSort(vector<T> v, int n)
 {
   _quickSort<T>(v,0,n-1);
   return v;
