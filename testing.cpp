@@ -4,10 +4,6 @@
 #include <chrono>
 #include "insertion_sort.h"
 #include "ap_sort.h"
-#include "ap_sort_2.h"
-#include "ap_sort_3.h"
-#include "ap_sort_4.h"
-#include "ap_sort_5.h"
 #include "merge_sort.h"
 #include "quick_sort.h"
 typedef long long int sortType;
@@ -15,103 +11,146 @@ typedef long long int sortType;
 using namespace std;
 using namespace std::chrono;
 
-template< typename T >
-vector<T> randomm(int n)
+vector<sortType> sorted;
+vector<sortType> reverseSorted;
+vector<sortType> highUniform;
+vector<sortType> lowUniform;
+vector<sortType> random;
+vector<sortType> constant;
+map<string, vector<sortType>> testCases;
+
+
+void generateTestCase(int n)
 {
-    T a=rand()%(40000)-20000;
-    T d=rand()%9900+100;
-    T off = 0;
-    vector<T> vec(n);
+
+    testCases.clear();
+
+    sorted.clear();
+    reverseSorted.clear();
+    highUniform.clear();
+    lowUniform.clear();
+    random.clear();
+    constant.clear();
+    
+    sorted.resize(n);
+    reverseSorted.resize(n);
+    highUniform.resize(n);
+    lowUniform.resize(n);
+    random.resize(n);
+    constant.resize(n);
+
+    // random
+    for(int i=0; i<n; i++){
+        if(rand()%2)
+            random[i] = rand();
+        else
+            random[i] = -rand();
+    }
+    testCases["random"] = random;
+
+    //sorted
+    sorted = random;
+    sort(sorted.begin(), sorted.end());
+    testCases["sorted"] = sorted;
+
+    // reverse sorted
+    reverseSorted = sorted;
+    reverse(reverseSorted.begin(), reverseSorted.end());
+    testCases["reverseSorted"] = reverseSorted;
+
+    // constant
+    sortType C = rand();
+    fill(constant.begin(), constant.end(), C);
+    testCases["constant"] = constant;
+
+    // high uniform
+    sortType a=rand()%(100000000)-50000000;
+    sortType d=rand()%5000 + 2500;
+    sortType off = 0;
     for(int i=0 ; i<n ; i++)
     {
-        // off=(rand()%(d))-d/2;
-        // off=(rand()%(d/25))-d/50;
-        // vec[i]=a+i*d + off;
-        vec[i]=rand();
-        // if(i%2)
-        // vec[i] = 10000;
-        // else vec[i] = 1000;
+        off=(rand()%(d/25))-d/50;
+        highUniform[i]=a+i*d + off;
     }
-    random_shuffle(vec.begin(),vec.end());
-    return vec;
-}
+    random_shuffle(highUniform.begin(), highUniform.end());
+    testCases["highUniform"] = highUniform;
 
-//int overlap()
-template< typename T >
-void pri_arr(vector<T> sor_vec, int n)
-{
+    // low uniform
+    a=rand()%(100000000)-50000000;
+    d=rand()%5000 + 2500;
+    off = 0;
     for(int i=0 ; i<n ; i++)
-        cout<<sor_vec[i]<<" ";
-    cout<<endl;
-    
+    {
+        off=(rand()%(d))-d/2;
+        lowUniform[i]=a+i*d + off;
+    }
+    random_shuffle(lowUniform.begin(), lowUniform.end());
+    testCases["lowUniform"] = lowUniform;
 }
 
+bool isSorted(vector<sortType> v){
+    vector<sortType> vSorted = v;
+    sort(v.begin(), v.end());
+    for(int i=0;i<v.size(); i++)
+        if(v[i]!=vSorted[i])
+            return false;
+
+    return true;
+}
 
 int main()
 {
     int n;
     cout<<"Enter no. of elements: ";
     cin>>n;
-    vector<sortType> v=randomm<sortType>(n);
+
+    generateTestCase(n);
 
     auto start = high_resolution_clock::now();
     auto stop = high_resolution_clock::now();
-    vector<sortType> sor_vec;
+    vector<sortType> input(n), output(n);
+    bool checkSorted = true;
 
-
+    // merge sort
+    for(auto testCase=testCases.begin(); testCase!=testCases.end(); testCase++)
+    {
+        input = testCase->second;
+        start = high_resolution_clock::now();
+        output = mergeSort<sortType>(input,n);
+        stop = high_resolution_clock::now();
+        cout << "merge sort - "<<testCase->first<<" : " << fixed << (duration_cast<milliseconds>(stop - start)).count() << endl;
+        if(checkSorted)
+            if(!isSorted(output)) cout<<"not sorted "<<endl;
+    }
+    cout<<endl;
     
-    start = high_resolution_clock::now();
-    sor_vec=mergeSort<sortType>(v,n);
-    stop = high_resolution_clock::now();
-    cout << "Time taken by merge sort: " << fixed << (duration_cast<milliseconds>(stop - start)).count() << endl;
+    // STL sort
+    for(auto testCase=testCases.begin(); testCase!=testCases.end(); testCase++)
+    {
+        input = testCase->second;
+        output = input;
+        start = high_resolution_clock::now();
+        sort(output.begin(), output.end());
+        stop = high_resolution_clock::now();
+        cout << "STL sort - "<<testCase->first<<" : " << fixed << (duration_cast<milliseconds>(stop - start)).count() << endl;
+        if(checkSorted)
+            if(!isSorted(output)) cout<<"not sorted "<<endl;
+    }
+    cout<<endl;
     
-    start = high_resolution_clock::now();
-    vector<sortType> sor_vec2=v;
-    sort(sor_vec2.begin(), sor_vec2.end());
-    stop = high_resolution_clock::now();
-    cout << "Time taken by STL sort: " << fixed << (duration_cast<milliseconds>(stop - start)).count() << endl;
+    // AP sort
+    for(auto testCase=testCases.begin(); testCase!=testCases.end(); testCase++)
+    {
+        input = testCase->second;
+        output = input;
+        start = high_resolution_clock::now();
+        apSort<sortType>(output, n);
+        stop = high_resolution_clock::now();
+        cout << "AP sort - "<<testCase->first<<" : " << fixed << (duration_cast<milliseconds>(stop - start)).count() << endl;
+        if(checkSorted)
+            if(!isSorted(output)) cout<<"not sorted"<<endl;
+    }
+    cout<<endl;
 
-    // start = high_resolution_clock::now();
-    // sor_vec=quickSort<sortType>(v,n);
-    // stop = high_resolution_clock::now();
-    // cout << "Time taken by quick sort: " << fixed << (duration_cast<milliseconds>(stop - start)).count() << endl;
-
-    // start = high_resolution_clock::now();
-    // sor_vec=apSort4<sortType>(v,n);
-    // stop = high_resolution_clock::now();
-    // cout << "Time taken by apsort4: " << fixed << (duration_cast<milliseconds>(stop - start)).count() << endl;
-
-    // start = high_resolution_clock::now();
-    // sor_vec=apSort2<sortType>(v,n);
-    // stop = high_resolution_clock::now();
-    // cout << "Time taken by apsort2: " << fixed << (duration_cast<milliseconds>(stop - start)).count() << endl;
-
-    // start = high_resolution_clock::now();
-    // sor_vec=apSort<sortType>(v,n);
-    // stop = high_resolution_clock::now();
-    // cout << "Time taken by apsort: " << fixed << (duration_cast<milliseconds>(stop - start)).count() << endl;
-    
-    start = high_resolution_clock::now();
-    sor_vec=apSort5<sortType>(v,n);
-    stop = high_resolution_clock::now();
-    cout << "Time taken by apsort 5: " << fixed << (duration_cast<milliseconds>(stop - start)).count() << endl;
-    
-    // sort check
-    // bool flg = true;
-    // for(int i=0;i<n;i++){if(sor_vec2[i]!=sor_vec[i]){flg=false;break;}}
-    // cout<<flg<<endl;
-    
-    // cout<<"Initial array: ";
-    // pri_arr<sortType>(v,n);
-
-    // cout<<"Sorted array: ";
-    // pri_arr<sortType>(sor_vec,n);
-
-    // start = high_resolution_clock::now();
-    // sor_vec=insertionSort<sortType>(v,n);
-    // stop = high_resolution_clock::now();
-    // cout << "Time taken by insertion sort: " << fixed << (duration_cast<milliseconds>(stop - start)).count() << endl;
-
-    
     return 0;
 }

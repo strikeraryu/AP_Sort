@@ -3,63 +3,54 @@ using namespace std;
 
 
 template< typename T >
-vector<T> apSort(vector<T> v, int n)       //arithmetic sorting
+void swap_ele(T &a, T &b){
+    T temp = a;
+    a = b;
+    b = temp;
+}
+
+template< typename T >
+void apSort(vector<T> &v, int n)       //arithmetic sorting
 {
     T ma=*max_element(v.begin(),v.end());
     T mi=*min_element(v.begin(),v.end());
 
-    int last_gap = n-1;
-    int col = 0;
-    vector<T> sor_vec(n,mi-1);
+    vector<bool> fill(n, false);
+    vector<int> cnts(n, 0);
 
     float d = ((ma-mi)/float(n-1));
-    for(int i=0 ; i<n ; i++)
+
+    for(int i=0; i<n; i++)
     {
         int indx = round((v[i]-mi)/d);
-        if(sor_vec[indx]!=(mi-1))
-        {
-            col++;
-            bool right=false;
-            int ele = v[i];
-
-            int j;
-            for(j = indx; j < n; j++){
-                if(j>=last_gap){
-                    j = n-1;
-                    break;
-                }
-                if(sor_vec[j]==mi-1){
-                    sor_vec[j] = ele;
-                    right = true;
-                    break;
-                }
-                else if(ele < sor_vec[j]){
-                    T tmp = ele;
-                    ele = sor_vec[j];
-                    sor_vec[j] = tmp;
-                }
-            }
-
-            if(!right)last_gap = indx;
-
-            for(j = n-1;!right && j>=0;j--){
-                if(sor_vec[j]==mi-1){
-                    sor_vec[j] = ele;
-                    break;
-                }
-                else if(ele > sor_vec[j]){
-                    T tmp = ele;
-                    ele = sor_vec[j];
-                    sor_vec[j] = tmp;
-                }
-            }
-        }
-            
-        else
-            sor_vec[indx]=v[i];
-            
+        cnts[indx]+=1;
     }
-    cout<<"col - "<<col<<endl;
-    return sor_vec;
-    
+
+    int prev = 0;   
+    for(int i=0; i<n; i++){
+        if(cnts[i] > 0){
+            int tmp = cnts[i];
+            cnts[i]=prev;
+            prev = prev+tmp;
+        }
+    }
+
+    for(int i=0; i<n;){
+        while(i<n && fill[i])
+            i++;
+
+        if(i>=n)break;
+
+        int indx = round((v[i]-mi)/d);
+
+        swap_ele<T>(v[cnts[indx]], v[i]);
+        fill[cnts[indx]] = true;
+
+        for(int j=cnts[indx]; j>0 && fill[j-1]; j--){
+            if(v[j]<v[j-1]) 
+                swap_ele<T>(v[j], v[j-1]);
+            else break;
+        }
+        cnts[indx]++;
+    }
 }

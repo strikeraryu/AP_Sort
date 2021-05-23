@@ -50,6 +50,7 @@ vector<T> apSort5(vector<T> v, int n)       //arithmetic sorting
         swap_ele<T>(v[cnts[indx]], v[i]);
         fill[cnts[indx]] = true;
         for(int j=cnts[indx]; j>0 && fill[j-1]; j--){
+            max_dis++;
             if(v[j]<v[j-1]) 
                 swap_ele<T>(v[j], v[j-1]);
             else break;

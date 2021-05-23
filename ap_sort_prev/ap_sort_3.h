@@ -3,7 +3,7 @@ using namespace std;
 
 
 template< typename T >
-vector<T> apSort4(vector<T> v, int n)       //arithmetic sorting
+vector<T> apSort3(vector<T> v, int n)       //arithmetic sorting
 {
     T ma=*max_element(v.begin(),v.end());
     T mi=*min_element(v.begin(),v.end());
