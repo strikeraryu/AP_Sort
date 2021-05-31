@@ -15,7 +15,7 @@ vector<sortType> sorted;
 vector<sortType> reverseSorted;
 vector<sortType> highUniform;
 vector<sortType> lowUniform;
-vector<sortType> random;
+vector<sortType> unsorted;
 vector<sortType> constant;
 map<string, vector<sortType>> testCases;
 
@@ -29,27 +29,27 @@ void generateTestCase(int n)
     reverseSorted.clear();
     highUniform.clear();
     lowUniform.clear();
-    random.clear();
+    unsorted.clear();
     constant.clear();
     
     sorted.resize(n);
     reverseSorted.resize(n);
     highUniform.resize(n);
     lowUniform.resize(n);
-    random.resize(n);
+    unsorted.resize(n);
     constant.resize(n);
 
-    // random
+    // unsorted
     for(int i=0; i<n; i++){
         if(rand()%2)
-            random[i] = rand();
+            unsorted[i] = rand();
         else
-            random[i] = -rand();
+            unsorted[i] = -rand();
     }
-    testCases["random"] = random;
+    testCases["unsorted"] = unsorted;
 
     //sorted
-    sorted = random;
+    sorted = unsorted;
     sort(sorted.begin(), sorted.end());
     testCases["sorted"] = sorted;
 
